@@ -11,14 +11,17 @@ jobs:
   coach:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      id-token: write       # pour commiter le compte rendu
+      contents: write       # pour commiter le compte rendu
+      id-token: write       # requis par claude-code-action (jeton OIDC)
     steps:
       - uses: actions/checkout@v4
 
       - uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Abonnement Pro : jeton OAuth généré par `claude setup-token`.
+          # (Pour une facturation à l'usage, remplacer par
+          #  anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }})
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           claude_args: "--model opus"
           prompt: |
             Tu es le coach décrit dans brief-coach.md. Lis ce fichier en entier
