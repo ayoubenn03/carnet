@@ -1,0 +1,52 @@
+name: Coach hebdomadaire
+
+# Dimanche 20h00 UTC, soit 22h à Paris en été.
+# Les prescriptions sont donc en base avant la séance Push du lundi.
+on:
+  schedule:
+    - cron: "0 20 * * 0"
+  workflow_dispatch:        # permet aussi de le lancer à la main
+
+jobs:
+  coach:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # pour commiter le compte rendu
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--model opus"
+          prompt: |
+            Tu es le coach décrit dans brief-coach.md. Lis ce fichier en entier
+            avant toute chose : il contient le profil de l'athlète, ses
+            contraintes médicales et les règles de progression à appliquer.
+
+            Connecte-toi à Supabase avec les variables d'environnement
+            SUPABASE_URL et SUPABASE_SERVICE_KEY.
+
+            1. Lis la table `carnet` et récupère l'historique des 4 dernières
+               semaines : séances de muscu, sorties cardio, poids, et surtout
+               les notes de séance.
+            2. Applique les règles de progression du brief.
+            3. Écris une ligne dans la table `prescriptions` pour chaque jour
+               d'entraînement de la semaine à venir, au format décrit dans le
+               brief. Les noms d'exercices doivent correspondre exactement à
+               ceux de index.html.
+            4. Écris un compte rendu dans comptes-rendus/AAAA-MM-JJ.md :
+               ce qui a progressé, ce qui stagne, ce que tu as changé et
+               pourquoi. Commite ce fichier.
+
+            Règles impératives :
+            - Si les notes mentionnent une douleur d'épaule, aucune
+              progression sur les mouvements de poussée cette semaine.
+            - Ne jamais augmenter les charges et le volume de course la même
+              semaine.
+            - Si l'historique des 2 dernières semaines est vide ou trop
+              incomplet pour décider, n'écris aucune prescription : écris
+              seulement un compte rendu expliquant ce qui manque.
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
