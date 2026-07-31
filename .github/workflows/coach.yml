@@ -35,7 +35,8 @@ jobs:
             contraintes médicales et les règles de progression à appliquer.
 
             Connecte-toi à Supabase avec les variables d'environnement
-            SUPABASE_URL et SUPABASE_SERVICE_KEY.
+            SUPABASE_URL et SUPABASE_SERVICE_KEY. SUPABASE_URL est l'hôte nu :
+            construis tes appels REST en `"${SUPABASE_URL%/}/rest/v1/<table>"`.
 
             1. Lis la table `carnet` et récupère l'historique des 4 dernières
                semaines : séances de muscu, sorties cardio, poids, et surtout
@@ -47,7 +48,9 @@ jobs:
                ceux de index.html.
             4. Écris un compte rendu dans comptes-rendus/AAAA-MM-JJ.md :
                ce qui a progressé, ce qui stagne, ce que tu as changé et
-               pourquoi. Commite ce fichier.
+               pourquoi. Commite-le **directement sur main** (pas sur une
+               branche) et **pousse-le** avec `git push origin main`. Sans
+               push, le rapport est perdu à la fin du job.
 
             Règles impératives :
             - Si les notes mentionnent une douleur d'épaule, aucune
