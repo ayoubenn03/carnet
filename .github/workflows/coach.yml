@@ -22,7 +22,13 @@ jobs:
           # (Pour une facturation à l'usage, remplacer par
           #  anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }})
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          claude_args: "--model opus"
+          # Sans --allowedTools, l'action refuse les commandes shell et le
+          # coach ne peut pas joindre Supabase. show_full_output permet de
+          # voir ce qu'il fait ; à repasser à false une fois au point.
+          claude_args: >-
+            --model opus
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep,WebFetch"
+          show_full_output: true
           prompt: |
             Tu es le coach décrit dans brief-coach.md. Lis ce fichier en entier
             avant toute chose : il contient le profil de l'athlète, ses
