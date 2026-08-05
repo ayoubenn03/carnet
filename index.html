@@ -29,6 +29,9 @@ main{padding:16px 14px 24px;max-width:640px;margin:0 auto;}
   font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;border-radius:2px;}
 .seg.actif{color:#fff;border-color:transparent;}
 
+.segments.muscu{flex-wrap:wrap;gap:5px;}
+.segments.muscu .seg{flex:1 1 30%;min-width:96px;font-size:13px;letter-spacing:.04em;line-height:1.15;padding:8px 4px;}
+
 .rappel{font-size:12.5px;line-height:1.5;color:var(--gris);margin:0 0 16px;}
 
 .exo{background:var(--carte);border:1px solid var(--trait);border-radius:2px;padding:12px 12px 10px;margin-bottom:10px;}
@@ -55,6 +58,10 @@ textarea.zone{width:100%;padding:10px;border:1px solid var(--trait);border-radiu
 .valider{width:100%;padding:14px;margin-top:12px;background:var(--encre);color:var(--papier);border:none;border-radius:2px;
   font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;}
 .valider:disabled{background:#C3C9D2;color:#7A828C;}
+
+.brouillon{background:#FFF8E8;border-left:2px solid #B4531C;font-size:12.5px;line-height:1.45;
+  margin:0 0 14px;padding:8px 10px;display:flex;align-items:center;gap:10px;}
+.brouillon button{margin-left:auto;}
 
 .hist{margin-top:26px;}
 .sous-titre{font-family:'Barlow Condensed',sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:.14em;color:var(--gris);margin:0 0 8px;}
@@ -161,6 +168,7 @@ button{cursor:pointer;font-family:inherit;}
 <script>
 /* ---------- Référentiel ---------- */
 const CLE = "carnet:v1";
+const CLE_BROUILLON = "carnet:brouillon";
 
 const PLANNING = {
   1:{l:"Lundi",s:"Push focus épaule",x:null},
@@ -228,6 +236,7 @@ const PLAN_CARDIO = {
      allure:"Aucune notion de chrono en piscine",
      cle:"Jour de récupération : les épaules travaillent en amplitude, pas en force."}
 };
+
 const REPERES = {
   "Développé militaire machine":"45-50 kg × 14-18",
   "Développé couché haltères":"50 kg × 8-12 (record 100-120)",
@@ -240,9 +249,8 @@ const REPERES = {
 };
 
 /* ================================================================
-   CONFIGURATION — remplis ces deux lignes avec tes identifiants
-   Supabase (Project Settings → API). Tant qu'elles sont vides,
-   le carnet fonctionne en local, comme avant.
+   CONFIGURATION — identifiants Supabase (Project Settings → API).
+   Tant qu'elles sont vides, le carnet fonctionne en local.
    ================================================================ */
 const CONFIG = {
   url: "https://tjajybrpsyqnyhfgcjzt.supabase.co",
@@ -337,6 +345,47 @@ let chrono = {reste:0, id:null};
 let onglet="seance", type=null, cardioKind="course", exoChoisi=null, ouvert=null;
 let series = {};  // nombre de séries affichées par exercice
 
+/* ---------- Brouillon de séance en cours ----------
+   Sauvegardé à chaque frappe : si la page est rechargée, mise en veille
+   ou si le téléphone redémarre, rien n'est perdu.
+   Le brouillon expire automatiquement le lendemain.               */
+function sauveBrouillon(){
+  const b = {type, date:auj(), champs:{}, note:"", series};
+  document.querySelectorAll("input[data-e]").forEach(i=>{
+    if(i.value!=="") b.champs[i.dataset.e+"|"+i.dataset.s+"|"+i.dataset.c]=i.value;
+  });
+  const n=document.getElementById("note");
+  if(n) b.note=n.value;
+  try{ localStorage.setItem(CLE_BROUILLON, JSON.stringify(b)); }catch(e){}
+}
+
+function litBrouillon(){
+  try{
+    const v=localStorage.getItem(CLE_BROUILLON);
+    if(!v) return null;
+    const b=JSON.parse(v);
+    if(!b||b.date!==auj()) return null;
+    if(!b.champs||!Object.keys(b.champs).length) return null;
+    return b;
+  }catch(e){ return null; }
+}
+
+function videBrouillon(){
+  try{ localStorage.removeItem(CLE_BROUILLON); }catch(e){}
+}
+
+function appliqueBrouillon(){
+  const b=litBrouillon();
+  if(!b||b.type!==type) return;
+  Object.keys(b.champs).forEach(k=>{
+    const [e,s,c]=k.split("|");
+    const el=document.querySelector('input[data-e="'+e+'"][data-s="'+s+'"][data-c="'+c+'"]');
+    if(el){ el.value=b.champs[k]; majMarque(el); }
+  });
+  const n=document.getElementById("note");
+  if(n&&b.note) n.value=b.note;
+}
+
 /* ---------- Rendu ---------- */
 function jourDuJour(){ return PLANNING[new Date().getDay()]; }
 
@@ -351,7 +400,7 @@ function render(){
     .map(([k,l])=>`<button class="nav-b ${onglet===k?'actif':''}" data-nav="${k}">${l}</button>`).join("");
 
   const v=document.getElementById("vue");
-  if(onglet==="seance") v.innerHTML=vueSeance();
+  if(onglet==="seance"){ v.innerHTML=vueSeance(); appliqueBrouillon(); }
   if(onglet==="progression") v.innerHTML=vueProgression();
   if(onglet==="cardio") v.innerHTML=vueCardio();
   if(onglet==="poids") v.innerHTML=vuePoids();
@@ -374,10 +423,17 @@ function cibleExo(nom){
 }
 
 function vueSeance(){
-  if(!type) type = jourDuJour().s || "push";
+  if(!type||!BLOCS[type]) type = jourDuJour().s || "Push focus épaule";
   const b=BLOCS[type], d=derniere(type);
-  let h=`<div class="segments">`+Object.keys(BLOCS).map(k=>
-    `<button class="seg ${type===k?'actif':''}" data-type="${k}" ${type===k?`style="background:${BLOCS[k].teinte}"`:''}>${BLOCS[k].nom}</button>`).join("")+`</div>`;
+  const br=litBrouillon();
+
+  let h=`<div class="segments muscu">`+Object.keys(BLOCS).map(k=>
+    `<button class="seg ${type===k?'actif':''}" data-type="${esc(k)}" ${type===k?`style="background:${BLOCS[k].teinte}"`:''}>${esc(BLOCS[k].nom)}</button>`).join("")+`</div>`;
+
+  if(br&&br.type===type){
+    h+=`<div class="brouillon">Séance en cours restaurée automatiquement.
+      <button class="mini" id="jeter-brouillon">Repartir de zéro</button></div>`;
+  }
 
   h+=`<p class="rappel">${d
     ? `Dernière séance ${b.nom} : ${dateCourte(d.date)}. Les valeurs grisées sont celles de ce jour-là.`
@@ -406,13 +462,13 @@ function vueSeance(){
     }
     h+=`</div>
       <div class="exo-actions">
-        <button class="mini" data-plus="${cle}">+ série</button>
-        ${nb>1?`<button class="mini" data-moins="${cle}">− série</button>`:''}
+        <button class="mini" data-plus="${esc(cle)}">+ série</button>
+        ${nb>1?`<button class="mini" data-moins="${esc(cle)}">− série</button>`:''}
       </div></section>`;
   });
 
   h+=`<textarea class="zone" id="note" rows="2" placeholder="Ressenti, main, épaule gauche, fatigue…"></textarea>
-    <button class="valider" id="valider">Enregistrer la séance ${b.nom}</button>`;
+    <button class="valider" id="valider">Enregistrer la séance ${esc(b.nom)}</button>`;
 
   const liste=D.seances.filter(s=>s.type===type).sort((a,b)=>a.date<b.date?1:-1).slice(0,8);
   if(liste.length){
@@ -460,6 +516,7 @@ async function validerSeance(){
   if(!exos.length){ alert("Remplis au moins une série."); return; }
   D.seances.push({id:uid(),date:auj(),type,exos,note:(document.getElementById("note").value||"").trim()});
   await store.ecrire(D);
+  videBrouillon();
   series={}; render();
 }
 
@@ -685,6 +742,7 @@ document.addEventListener("click",async e=>{
     return;
   }
   if(t.id==="deconnexion"){ await sb.auth.signOut(); return; }
+  if(t.id==="jeter-brouillon"){ videBrouillon(); series={}; render(); return; }
   if(t.dataset.recup){ lanceChrono(+t.dataset.recup); return; }
   if(t.id==="chrono-x"){ stopChrono(); return; }
   if(t.id==="regler-age"||t.id==="changer-age"){
@@ -694,8 +752,8 @@ document.addEventListener("click",async e=>{
   }
   if(t.dataset.nav){ onglet=t.dataset.nav; render(); }
   else if(t.dataset.type){ type=t.dataset.type; series={}; render(); }
-  else if(t.dataset.plus){ series[t.dataset.plus]=(series[t.dataset.plus]||3)+1; render(); }
-  else if(t.dataset.moins){ series[t.dataset.moins]=Math.max(1,(series[t.dataset.moins]||3)-1); render(); }
+  else if(t.dataset.plus){ series[t.dataset.plus]=(series[t.dataset.plus]||3)+1; sauveBrouillon(); render(); }
+  else if(t.dataset.moins){ series[t.dataset.moins]=Math.max(1,(series[t.dataset.moins]||3)-1); sauveBrouillon(); render(); }
   else if(t.dataset.hist){ ouvert = ouvert===t.dataset.hist?null:t.dataset.hist; render(); }
   else if(t.dataset.exochoix){ exoChoisi=t.dataset.exochoix; render(); }
   else if(t.dataset.cardio){ cardioKind=t.dataset.cardio; render(); }
@@ -710,7 +768,8 @@ document.addEventListener("click",async e=>{
 });
 
 document.addEventListener("input",e=>{
-  if(e.target.matches("input[data-e]")) majMarque(e.target);
+  if(e.target.matches("input[data-e]")){ majMarque(e.target); sauveBrouillon(); }
+  else if(e.target.id==="note") sauveBrouillon();
 });
 
 /* ---------- Démarrage ---------- */
@@ -732,6 +791,13 @@ async function demarrer(){
   if(!D.reglages.age) D.reglages.age=23;
   if(!D.cardio) D.cardio=[];
   if(!D.poids) D.poids=[];
+
+  const br=litBrouillon();
+  if(br){
+    if(BLOCS[br.type]) type=br.type;
+    if(br.series) series=br.series;
+  }
+
   render(); majSync();
 }
 
