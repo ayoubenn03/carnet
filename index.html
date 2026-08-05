@@ -163,31 +163,40 @@ button{cursor:pointer;font-family:inherit;}
 const CLE = "carnet:v1";
 
 const PLANNING = {
-  1:{l:"Lundi",s:"push",x:null},
-  2:{l:"Mardi",s:"pull",x:"Course — fractionné"},
-  3:{l:"Mercredi",s:"push",x:null},
-  4:{l:"Jeudi",s:"legs",x:"Course facile (rythme lent)"},
-  5:{l:"Vendredi",s:null,x:"Piscine — récup active"},
+  1:{l:"Lundi",s:"Push focus épaule",x:null},
+  2:{l:"Mardi",s:"Pull focus biceps",x:"Course — fractionné"},
+  3:{l:"Mercredi",s:"Jambes",x:null},
+  4:{l:"Jeudi",s:"Push focus triceps",x:"Course facile (rythme lent)"},
+  5:{l:"Vendredi",s:"Pull focus deltoïde arrière",x:null},
   6:{l:"Samedi",s:null,x:"Repos ou foot"},
-  0:{l:"Dimanche",s:"pull",x:"Course facile si pas de foot la veille"}
+  0:{l:"Dimanche",s:null,x:"Piscine — récup active, puis course facile si pas de foot la veille"}
 };
 
 const BLOCS = {
-  push:{nom:"Push",teinte:"#B4531C",exos:[
+  "Push focus épaule":{nom:"Push épaule",teinte:"#B4531C",exos:[
     {n:"Rotation externe épaule (poulie basse)",tag:"coiffe",r:45,note:"Avant tout le reste. Très léger, 2 × 15-20."},
     {n:"Développé militaire machine",r:120,note:"Prise neutre uniquement (épaule gauche)."},
-    {n:"Développé couché haltères",r:150,note:"Charge par haltère."},
     {n:"Élévations latérales",r:75},
     {n:"Élévation frontale poulie unilatérale",r:60},
-    {n:"Pushdown corde unilatéral",r:60}]},
-  pull:{nom:"Pull",teinte:"#1B4E8C",exos:[
-    {n:"Face pull",tag:"coiffe",r:45,note:"Activation + santé d'épaule. Léger, contrôlé."},
+    {n:"Pushdown corde unilatéral",r:60,note:"Léger — c'est le jour triceps qui charge vraiment."}]},
+  "Push focus triceps":{nom:"Push triceps",teinte:"#8C3A12",exos:[
+    {n:"Développé couché haltères",r:150,note:"Charge par haltère, jour lourd."},
+    {n:"Dips",r:120},
+    {n:"Pushdown corde unilatéral",r:60},
+    {n:"Extension triceps poulie haute",r:60},
+    {n:"Élévations latérales",r:75,note:"Léger — juste pour maintenir le stimulus épaule."}]},
+  "Pull focus biceps":{nom:"Pull biceps",teinte:"#1B4E8C",exos:[
     {n:"Traction assistée",inverse:true,r:120,note:"Charge = assistance : plus c'est bas, plus c'est dur."},
     {n:"Tirage horizontal V-bar",r:120},
-    {n:"Tirage vertical prise neutre",r:120},
     {n:"Curl barre EZ",r:75},
+    {n:"Curl unilatéral poulie debout",r:60},
     {n:"Curl marteau",r:60}]},
-  legs:{nom:"Jambes",teinte:"#3E6B34",exos:[
+  "Pull focus deltoïde arrière":{nom:"Pull delt. arrière",teinte:"#0E4A6E",exos:[
+    {n:"Face pull",tag:"coiffe",r:45,note:"Activation + santé d'épaule. Léger, contrôlé."},
+    {n:"Tirage horizontal prise large",r:90},
+    {n:"Élévation arrière (oiseau / reverse pec deck)",r:60},
+    {n:"Curl barre EZ",r:60,note:"Léger — juste pour maintenir le stimulus biceps."}]},
+  "Jambes":{nom:"Jambes",teinte:"#3E6B34",exos:[
     {n:"Hack squat",r:180},{n:"Presse à cuisses",r:150},{n:"Leg curl allongé",r:90},
     {n:"Leg extension",r:90},{n:"Hip thrust",r:120},{n:"Mollets debout",r:60}]}
 };
@@ -209,24 +218,16 @@ const PLAN_CARDIO = {
      dist:"4 à 4,5 km",
      allure:"7'30 à 8'00/km — volontairement plus lent que ton allure actuelle",
      fc:[.65,.75],
-     cle:"C'est la séance la plus importante pour ton objectif 5 km. Aller lentement construit le moteur ; aller vite ne fait que le tester."},
-  5:{kind:"piscine",titre:"Piscine — récup active",
+     cle:"Après une séance jambes : reste vraiment lent, ce n'est pas le jour pour chercher la vitesse."},
+  0:{kind:"piscine",titre:"Piscine — récup active",
      blocs:[["Échauffement","200 m souple, nage au choix"],
             ["Série","10 × 50 m avec 30 s de repos"],
-            ["Fin","200 m très souple, dont du dos pour ouvrir les épaules"]],
-     dist:"800 à 1 000 m",
-     allure:"Aucune notion de chrono aujourd'hui",
-     cle:"Jour de récupération : les épaules travaillent en amplitude, pas en force."},
-  0:{kind:"course",titre:"Sortie continue — 5 km",
-     blocs:[["Objectif","5 km sans t'arrêter, quel que soit le temps"],
-            ["Intensité","Le plus régulier possible du début à la fin"],
-            ["Stratégie","Pars plus lentement que ce que tu penses pouvoir tenir"]],
-     dist:"5 km",
-     allure:"7'15 à 7'45/km",
-     fc:[.70,.80],
-     cle:"C'est ta séance-test. Si tu la finis en pouvant encore parler, tu es prêt à travailler le chrono."}
+            ["Fin piscine","200 m très souple, dont du dos pour ouvrir les épaules"],
+            ["Optionnel","Course facile ensuite, seulement si pas de foot la veille"]],
+     dist:"800 à 1 000 m nage",
+     allure:"Aucune notion de chrono en piscine",
+     cle:"Jour de récupération : les épaules travaillent en amplitude, pas en force."}
 };
-
 const REPERES = {
   "Développé militaire machine":"45-50 kg × 14-18",
   "Développé couché haltères":"50 kg × 8-12 (record 100-120)",
