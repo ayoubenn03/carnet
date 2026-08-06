@@ -169,6 +169,7 @@ button{cursor:pointer;font-family:inherit;}
 /* ---------- Référentiel ---------- */
 const CLE = "carnet:v1";
 const CLE_BROUILLON = "carnet:brouillon";
+const CLE_CHRONO = "carnet:chrono";
 
 const PLANNING = {
   1:{l:"Lundi",s:"Push focus épaule",x:null},
@@ -191,7 +192,7 @@ const BLOCS = {
     {n:"Développé couché haltères",r:150,note:"Charge par haltère, jour lourd."},
     {n:"Dips",r:120},
     {n:"Pushdown corde unilatéral",r:60},
-    {n:"Extension triceps à la poulie basse(corde)",r:60,note:"Bras à la verticale pour bosser le chef long."},
+    {n:"Extension triceps à la poulie basse (corde)",r:60,note:"Bras à la verticale pour bosser le chef long."},
     {n:"Élévations latérales",r:75,note:"Léger — juste pour maintenir le stimulus épaule."}]},
   "Pull focus biceps":{nom:"Pull biceps",teinte:"#1B4E8C",exos:[
     {n:"Traction assistée",inverse:true,r:120,note:"Charge = assistance : plus c'est bas, plus c'est dur."},
@@ -341,7 +342,7 @@ function zoneFC(p){
 
 /* ---------- État ---------- */
 let D = {seances:[],cardio:[],poids:[],reglages:{age:23}};
-let chrono = {reste:0, id:null};
+let chrono = {reste:0, id:null, fin:null};
 let onglet="seance", type=null, cardioKind="course", exoChoisi=null, ouvert=null;
 let series = {};  // nombre de séries affichées par exercice
 
@@ -693,23 +694,46 @@ function bip(){
 }
 function afficheChrono(){
   const b=document.getElementById("chrono"), t=document.getElementById("chrono-t");
-  b.classList.remove("cache");
   const s=Math.max(0,chrono.reste);
+  b.classList.remove("cache");
   t.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
   b.classList.toggle("fini",s===0);
 }
-function lanceChrono(sec){
-  clearInterval(chrono.id);
-  chrono.reste=sec; afficheChrono();
-  chrono.id=setInterval(()=>{
-    chrono.reste--;
-    if(chrono.reste<=0){ chrono.reste=0; clearInterval(chrono.id); chrono.id=null; bip(); }
-    afficheChrono();
-  },1000);
+
+/* Le décompte est recalculé depuis l'heure de fin, pas incrémenté :
+   il reste juste même après un refresh, une mise en veille ou un
+   redémarrage du téléphone. */
+function tickChrono(){
+  const avant=chrono.reste;
+  chrono.reste=Math.max(0,Math.round((chrono.fin-Date.now())/1000));
+  afficheChrono();
+  if(chrono.reste===0){
+    clearInterval(chrono.id); chrono.id=null;
+    if(avant>0) bip();
+  }
 }
+
+function lanceChrono(sec,fin){
+  clearInterval(chrono.id);
+  chrono.fin = fin || (Date.now()+sec*1000);
+  try{ localStorage.setItem(CLE_CHRONO, String(chrono.fin)); }catch(e){}
+  tickChrono();
+  if(chrono.reste>0) chrono.id=setInterval(tickChrono,250);
+}
+
 function stopChrono(){
-  clearInterval(chrono.id); chrono.id=null;
+  clearInterval(chrono.id); chrono.id=null; chrono.fin=null;
+  try{ localStorage.removeItem(CLE_CHRONO); }catch(e){}
   document.getElementById("chrono").classList.add("cache");
+}
+
+function reprendChrono(){
+  let fin=null;
+  try{ fin=parseInt(localStorage.getItem(CLE_CHRONO),10); }catch(e){}
+  if(!fin) return;
+  // au-delà de 10 min après la fin, on considère que la séance est passée à autre chose
+  if(Date.now()-fin > 600000){ stopChrono(); return; }
+  lanceChrono(null,fin);
 }
 
 /* ---------- Évènements ---------- */
@@ -801,9 +825,15 @@ async function demarrer(){
   render(); majSync();
 }
 
+/* Safari suspend les timers en arrière-plan : on resynchronise au retour. */
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden && chrono.fin) tickChrono();
+});
+
 (async()=>{
   await initCloud();
   await demarrer();
+  reprendChrono();
 })();
 </script>
 </body>
