@@ -9,9 +9,15 @@ progression, et le travail à faire chaque semaine.
 - Sportif depuis l'enfance, musculation niveau intermédiaire solide, surtout en poussée.
 - Reprise de la muscu il y a 2 mois après une pause. Course à pied depuis 1 mois.
 - Objectif course : 5 km confortable, puis chercher le chrono, puis 10 km.
-- FC max estimée 192 bpm. Sorties actuelles à 155-162 bpm, soit 81-84 % — trop haut
-  pour de l'endurance fondamentale.
-- Références course : 3,75 km en 27'39 puis 4 km en 28'35 (≈ 7'09/km).
+- **FC max mesurée : 203 bpm en 2022, 197 en 2023.** Valeur de travail retenue :
+  200 bpm. Ne jamais repasser par une formule d'estimation (220−âge ou Tanaka) :
+  elles sous-estimaient de 5 à 11 bpm et resserraient ses zones à tort.
+- Références course : 3,75 km en 27'39 puis 4 km en 28'35 (≈ 7'09/km) à 155-162 bpm.
+  Puis 4,22 km en 35'11 (8'20/km) à 147 bpm de moyenne, cadence 159-160, en
+  **respiration nasale tenue sur toute la sortie** — genoux et chevilles indolores,
+  fatigue adducteurs et dos. C'est sa meilleure séance : plus lente, FC bien plus basse.
+- Il pilote bien à la sensation. La respiration nasale est un indicateur fiable chez
+  lui et prime sur le chiffre affiché par la montre en cas de contradiction.
 
 **Contraintes médicales à ne jamais ignorer :**
 - Épaule gauche limitée. Développé militaire en **prise neutre uniquement**.
@@ -19,9 +25,51 @@ progression, et le travail à faire chaque semaine.
 - Brûlure à l'extérieur de la paume : vérifier périodiquement si les prises
   barre restent douloureuses.
 
-**Planning hebdomadaire :** lundi Push, mardi Pull + fractionné, mercredi Push,
-jeudi Jambes + course facile, vendredi piscine, samedi repos ou foot,
-dimanche Pull + course facile. Tennis 3×/semaine, hors programme.
+**Planning hebdomadaire (depuis le 3 novembre, valable jusqu'au trail) :** lundi Pull,
+mardi Jambes (quadriceps, ischios, machines), mercredi Push, jeudi course facile + pente
+(tapis, 4-6 %), vendredi Fessiers (moyen fessier, hip thrust léger, gainage), samedi
+piscine ou repos, dimanche sortie longue. Plus de fractionné, plus de foot (le five est
+supprimé). Tennis 3×/semaine hors programme : l'alléger tant que le coude est irrité.
+Durées estimées : Pull 50-55 min, Jambes 55-60 min, Push 50 min, Fessiers 35-40 min, course facile + pente 35-40 min, sortie longue 55-65 min. Si le temps manque, réduire les séries plutôt que les exercices de coiffe et de moyen fessier.
+Après le trail du 21/11, rétablir un fractionné court et reconsidérer le planning.
+
+## Situation au 1er novembre 2026 (priment sur le planning habituel)
+
+**Objectif court terme : trail de 8 km le 21 novembre 2026.** Premier trail. Il vise
+de le finir bien, chrono estimé 62-70 min. Plus longue sortie récente : environ 5 km.
+Progression de volume : 5 km (semaine du 26/10), 6,5-7 km (semaine du 2/11), puis
+semaine du 16 au 20/11 allégée (2 × 25 min faciles, rien de long). Une seule sortie
+longue par semaine, le reste en endurance fondamentale nasale (130-150 bpm). Le
+fractionné du mardi est supprimé tant que dos ou genou gênent. Ajouter une fois par
+semaine un peu de pente (tapis 4-6 %) et de la marche rapide en descente.
+
+**Signaux physiques en cours, à relire dans les notes avant toute prescription :**
+- **Genou** : blocage en extension survenu après un match de foot à 5, disparu
+  depuis. Hypothèse d'un souci fémoro-patellaire ou d'une plica, non confirmée, pas
+  d'avis médical obtenu. S'il revient : plus de course, vélo ou marche, et avis médical.
+- **Haut du fessier droit / bas du dos** : douleur mécanique localisée, uniquement
+  à l'effort et en marchant, apparue au hack squat. **Pause du hack squat et des
+  squats lourds**, pas de soulevé de terre ni de rowing penché lourd. Reprise des
+  jambes à ~60 % de la charge, pieds un peu plus écartés, quand il marche sans
+  douleur 2-3 jours. Si la douleur apparaît en courant : vélo ou marche.
+- **Coude (long supinateur)** : irritation tendineuse, probablement liée au tennis
+  et aux tirages en prise neutre. **Pas de curl marteau.** Sangles de tirage sur les
+  exercices de dos, supination complète sur les curls, 2 reps en réserve. Pas
+  d'extension triceps au-dessus de la tête (épaule gauche non plus).
+- **Valgus dynamique** : genoux qui rentrent vers l'intérieur en squat, en fente et
+  en course, tibias vers l'extérieur. À corriger par le renforcement du moyen fessier
+  et des rotateurs externes de hanche (séance Fessiers du vendredi, échauffement des
+  jambes du mardi), consigne « genoux dans l'axe des orteils ». À surveiller dans les
+  notes : douleur ou blocage du genou. Progression par répétitions et contrôle du geste,
+  jamais par la charge.
+- Si une de ces trois zones est signalée dans les notes, aucune progression de
+  charge sur les exercices qui la sollicitent. Un champ vide n'est pas un « rien à
+  signaler » : demander de renseigner même « rien ».
+
+**Autres données :** bilan sanguin du 26/10/2026 globalement bon (lipides, glycémie,
+foie, thyroïde normaux). Plaquettes légèrement basses (141 G/L), à recontrôler avec
+le médecin. Il tient la respiration nasale jusqu'à environ 150 bpm. Il demande des
+séances courtes (25-45 min) avec des charges légères quand il manque de temps.
 
 ## Base de données
 
@@ -50,7 +98,7 @@ updated_at timestamptz
 }
 ```
 
-`type` vaut `push`, `pull` ou `legs`. `kind` vaut `course` ou `piscine`.
+`type` vaut `push`, `pull`, `legs` ou `fess`. `kind` vaut `course` ou `piscine`.
 `secs` est la durée totale en secondes, `dist` en kilomètres.
 
 ### `prescriptions` — ce qu'il doit faire
@@ -134,8 +182,8 @@ par surcharge, pas le manque d'intensité.
 
 1. Volume hebdomadaire : +10 % maximum d'une semaine à l'autre.
 2. Une seule séance intense par semaine (le fractionné du mardi). Le reste en
-   endurance fondamentale, 65-75 % de FC max, soit 125-144 bpm.
-3. S'il ne parvient pas à rester sous 144 bpm en courant, prescrire de
+   endurance fondamentale, 65-75 % de FC max, soit 130-150 bpm.
+3. S'il ne parvient pas à rester sous 150 bpm en courant, prescrire de
    l'alternance course/marche. C'est une méthode, pas un échec.
 4. Ne pas travailler le chrono sur 5 km tant qu'il ne tient pas 5 km continus
    en restant dans sa zone.
@@ -167,8 +215,3 @@ mouvements de poussée, quelles que soient les performances chiffrées.
 
 La clé `service_role` de Supabase est nécessaire pour écrire. Elle reste dans un
 fichier `.env` local, jamais dans le dépôt, jamais dans `index.html`.
-
-```
-SUPABASE_URL=https://tjajybrpsyqnyhfgcjzt.supabase.co
-SUPABASE_SERVICE_KEY=...
-```
