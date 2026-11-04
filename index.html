@@ -29,9 +29,6 @@ main{padding:16px 14px 24px;max-width:640px;margin:0 auto;}
   font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;border-radius:2px;}
 .seg.actif{color:#fff;border-color:transparent;}
 
-.segments.muscu{flex-wrap:wrap;gap:5px;}
-.segments.muscu .seg{flex:1 1 30%;min-width:96px;font-size:13px;letter-spacing:.04em;line-height:1.15;padding:8px 4px;}
-
 .rappel{font-size:12.5px;line-height:1.5;color:var(--gris);margin:0 0 16px;}
 
 .exo{background:var(--carte);border:1px solid var(--trait);border-radius:2px;padding:12px 12px 10px;margin-bottom:10px;}
@@ -52,16 +49,13 @@ main{padding:16px 14px 24px;max-width:640px;margin:0 auto;}
 .marque{font-size:13px;color:#3E6B34;text-align:center;}
 
 .exo-actions{display:flex;gap:10px;margin-top:8px;}
+.mini.danger{color:#8C1B1B;margin-top:10px;}
 .mini{border:none;background:none;color:var(--gris);font-size:12.5px;padding:4px 0;text-decoration:underline;text-underline-offset:3px;}
 
 textarea.zone{width:100%;padding:10px;border:1px solid var(--trait);border-radius:2px;font-family:Inter,sans-serif;font-size:14px;resize:vertical;}
 .valider{width:100%;padding:14px;margin-top:12px;background:var(--encre);color:var(--papier);border:none;border-radius:2px;
   font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;}
 .valider:disabled{background:#C3C9D2;color:#7A828C;}
-
-.brouillon{background:#FFF8E8;border-left:2px solid #B4531C;font-size:12.5px;line-height:1.45;
-  margin:0 0 14px;padding:8px 10px;display:flex;align-items:center;gap:10px;}
-.brouillon button{margin-left:auto;}
 
 .hist{margin-top:26px;}
 .sous-titre{font-family:'Barlow Condensed',sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:.14em;color:var(--gris);margin:0 0 8px;}
@@ -168,74 +162,72 @@ button{cursor:pointer;font-family:inherit;}
 <script>
 /* ---------- Référentiel ---------- */
 const CLE = "carnet:v1";
-const CLE_BROUILLON = "carnet:brouillon";
-const CLE_CHRONO = "carnet:chrono";
 
 const PLANNING = {
-  1:{l:"Lundi",s:"Push focus épaule",x:null},
-  2:{l:"Mardi",s:"Pull focus biceps",x:"Course — fractionné"},
-  3:{l:"Mercredi",s:"Jambes",x:null},
-  4:{l:"Jeudi",s:"Push focus triceps",x:"Course facile (rythme lent)"},
-  5:{l:"Vendredi",s:"Pull focus deltoïde arrière",x:null},
-  6:{l:"Samedi",s:null,x:"Repos ou foot"},
-  0:{l:"Dimanche",s:null,x:"Piscine — récup active, puis course facile si pas de foot la veille"}
+  1:{l:"Lundi",s:"pull",x:null},
+  2:{l:"Mardi",s:"legs",x:null},
+  3:{l:"Mercredi",s:"push",x:null},
+  4:{l:"Jeudi",s:null,x:"Course facile + pente"},
+  5:{l:"Vendredi",s:"fess",x:null},
+  6:{l:"Samedi",s:null,x:"Piscine ou repos"},
+  0:{l:"Dimanche",s:null,x:"Sortie longue (prépa trail)"}
 };
 
 const BLOCS = {
-  "Push focus épaule":{nom:"Push épaule",teinte:"#B4531C",exos:[
+  push:{nom:"Push",duree:"50 min",teinte:"#B4531C",exos:[
     {n:"Rotation externe épaule (poulie basse)",tag:"coiffe",r:45,note:"Avant tout le reste. Très léger, 2 × 15-20."},
     {n:"Développé militaire machine",r:120,note:"Prise neutre uniquement (épaule gauche)."},
+    {n:"Développé couché haltères",r:150,note:"Charge par haltère."},
     {n:"Élévations latérales",r:75},
     {n:"Élévation frontale poulie unilatérale",r:60},
-    {n:"Pushdown corde unilatéral",r:60,note:"Léger — c'est le jour triceps qui charge vraiment."}]},
-  "Push focus triceps":{nom:"Push triceps",teinte:"#8C3A12",exos:[
-    {n:"Développé couché haltères",r:150,note:"Charge par haltère, jour lourd."},
-    {n:"Dips",r:120},
-    {n:"Pushdown corde unilatéral",r:60},
-    {n:"Extension triceps à la poulie basse (corde)",r:60,note:"Bras à la verticale pour bosser le chef long."},
-    {n:"Élévations latérales",r:75,note:"Léger — juste pour maintenir le stimulus épaule."}]},
-  "Pull focus biceps":{nom:"Pull biceps",teinte:"#1B4E8C",exos:[
-    {n:"Traction assistée",inverse:true,r:120,note:"Charge = assistance : plus c'est bas, plus c'est dur."},
-    {n:"Tirage horizontal V-bar",r:120},
-    {n:"Curl barre EZ",r:75},
-    {n:"Curl unilatéral poulie debout",r:60},
-    {n:"Curl marteau",r:60}]},
-  "Pull focus deltoïde arrière":{nom:"Pull delt. arrière",teinte:"#0E4A6E",exos:[
+    {n:"Pushdown corde unilatéral",r:60}]},
+  pull:{nom:"Pull",duree:"50-55 min",teinte:"#1B4E8C",exos:[
     {n:"Face pull",tag:"coiffe",r:45,note:"Activation + santé d'épaule. Léger, contrôlé."},
-    {n:"Tirage horizontal prise large",r:90},
-    {n:"Élévation arrière (oiseau / reverse pec deck)",r:60},
-    {n:"Curl barre EZ",r:60,note:"Léger — juste pour maintenir le stimulus biceps."}]},
-  "Jambes":{nom:"Jambes",teinte:"#3E6B34",exos:[
-    {n:"Hack squat",r:180},{n:"Presse à cuisses",r:150},{n:"Leg curl allongé",r:90},
-    {n:"Leg extension",r:90},{n:"Hip thrust",r:120},{n:"Mollets debout",r:60}]}
+    {n:"Traction assistée",inverse:true,r:120,note:"Charge = assistance : plus c'est bas, plus c'est dur."},
+    {n:"Tirage horizontal V-bar",r:120,note:"Avec sangles de tirage (irritation coude droit)."},
+    {n:"Tirage vertical prise neutre",r:120,note:"Avec sangles, charge modérée tant que le coude tire."},
+    {n:"Curl barre EZ",r:75,note:"Supination complète, 2 reps en réserve. Stop si ça pince au coude."},
+    {n:"Curl marteau",r:60,note:"EN PAUSE (long supinateur irrité). Reprendre quand le coude est indolore."}]},
+  legs:{nom:"Jambes",duree:"55-60 min",teinte:"#3E6B34",exos:[
+    {n:"Hack squat",r:180,note:"EN PAUSE (douleur haut du fessier droit). Reprise à ~60 % de la charge quand tu marches sans douleur 2-3 jours. Genoux dans l'axe des orteils, pousse-les vers l'extérieur."},{n:"Presse à cuisses",r:150,note:"Bassin plaqué, descente contrôlée, ne descends pas jusqu'à décoller le bas du dos."},{n:"Leg curl allongé",r:90},
+    {n:"Leg extension",r:90},{n:"Hip thrust",r:120,note:"Indolore uniquement. Stop si le fessier droit tire."},{n:"Mollets debout",r:60}]},
+  fess:{nom:"Fessiers",duree:"35-40 min",teinte:"#7A4E8C",exos:[
+    {n:"Abduction machine (moyen fessier)",r:60,note:"Léger, lent et contrôlé. 3 × 12-15. Tu dois sentir le côté du fessier."},
+    {n:"Pas latéraux élastique",r:45,note:"Élastique au-dessus des genoux, genoux fléchis, genoux poussés vers l'extérieur. 3 × 12-15 pas par côté."},
+    {n:"Hip thrust",r:120,note:"Léger, indolore uniquement. Stop si le fessier droit tire."},
+    {n:"Coquille (clamshell) élastique",r:45,note:"Allongé sur le côté, genoux fléchis, pieds joints, élastique au-dessus des genoux. Ouvre le genou du haut sans bouger le bassin. 3 × 15 par côté."},
+    {n:"Équilibre unipodal genou aligné",r:45,note:"Debout sur une jambe, genou fléchi 20-30°, face à un miroir. Le genou reste au-dessus du 2e orteil, il ne rentre pas vers l'intérieur. 3 × 30 s par côté."},
+    {n:"Gainage latéral",r:45,note:"3 × 20-30 s par côté, bassin stable."}]}
 };
 
 /* Séance cardio prescrite selon le jour */
 const PLAN_CARDIO = {
-  2:{kind:"course",titre:"Fractionné court",
-     blocs:[["Échauffement","10 min très lent, tu dois pouvoir parler en courant"],
-            ["Corps de séance","6 × (1 min rapide / 2 min marche rapide)"],
-            ["Retour au calme","5 min très lent"]],
-     dist:"4 à 4,5 km au total",
-     allure:"5'50 à 6'20/km sur les blocs rapides",
-     fc:[.85,.92], fcRecup:.75,
-     cle:"Le but n'est pas de finir mort : c'est que ta FC redescende vite pendant les 2 min de marche. Si elle ne redescend pas, marche plus longtemps."},
-  4:{kind:"course",titre:"Course facile",
-     blocs:[["Durée","30 à 35 min en continu"],
-            ["Intensité","Tu dois pouvoir tenir une conversation"],
-            ["Si ça monte trop","Marche 1 min et repars"]],
-     dist:"4 à 4,5 km",
-     allure:"7'30 à 8'00/km — volontairement plus lent que ton allure actuelle",
+  4:{kind:"course",titre:"Course facile + pente",
+     blocs:[["Échauffement","5 min de marche rapide, tapis à 1 %"],
+            ["Corps de séance","25 min de footing facile, respiration nasale. 3 blocs de 3 min à 4-6 % de pente (marche rapide ou trot) vers la 8e, 14e et 20e minute"],
+            ["Retour au calme","3 min de marche"]],
+     duree:"35-40 min",
+     dist:"3,5 à 4,5 km",
+     allure:"8'00 à 8'30/km",
      fc:[.65,.75],
-     cle:"Après une séance jambes : reste vraiment lent, ce n'est pas le jour pour chercher la vitesse."},
-  0:{kind:"piscine",titre:"Piscine — récup active",
+     cle:"Prépare les quadriceps à la descente du trail. Si le fessier ou le genou tirent, supprime la pente et reste à plat."},
+  6:{kind:"piscine",titre:"Piscine — récup active",
      blocs:[["Échauffement","200 m souple, nage au choix"],
             ["Série","10 × 50 m avec 30 s de repos"],
-            ["Fin piscine","200 m très souple, dont du dos pour ouvrir les épaules"],
-            ["Optionnel","Course facile ensuite, seulement si pas de foot la veille"]],
-     dist:"800 à 1 000 m nage",
-     allure:"Aucune notion de chrono en piscine",
-     cle:"Jour de récupération : les épaules travaillent en amplitude, pas en force."}
+            ["Fin","200 m très souple, dont du dos pour ouvrir les épaules"]],
+     duree:"40-45 min",
+     dist:"800 à 1 000 m",
+     allure:"Aucune notion de chrono",
+     cle:"Récupération : les épaules travaillent en amplitude, pas en force. Ou repos complet si tu es fatigué."},
+  0:{kind:"course",titre:"Sortie longue — prépa trail du 21/11",
+     blocs:[["Objectif","8/11 : 6,5 à 7 km. 15/11 : 5 km facile, début de l'allègement"],
+            ["Intensité","Respiration nasale du début à la fin. Si tu ouvres la bouche, ralentis"],
+            ["Stratégie","Pars lentement. Marche les côtes raides, comme le jour du trail"]],
+     duree:"55-65 min (8/11), 45-50 min (15/11)",
+     dist:"6,5 à 7 km (8/11), 5 km (15/11)",
+     allure:"8'00 à 8'20/km",
+     fc:[.65,.75],
+     cle:"C'est ta séance la plus importante avant le trail. Termine en pouvant encore parler."}
 };
 
 const REPERES = {
@@ -250,8 +242,9 @@ const REPERES = {
 };
 
 /* ================================================================
-   CONFIGURATION — identifiants Supabase (Project Settings → API).
-   Tant qu'elles sont vides, le carnet fonctionne en local.
+   CONFIGURATION — remplis ces deux lignes avec tes identifiants
+   Supabase (Project Settings → API). Tant qu'elles sont vides,
+   le carnet fonctionne en local, comme avant.
    ================================================================ */
 const CONFIG = {
   url: "https://tjajybrpsyqnyhfgcjzt.supabase.co",
@@ -341,51 +334,10 @@ function zoneFC(p){
 }
 
 /* ---------- État ---------- */
-let D = {seances:[],cardio:[],poids:[],reglages:{age:23}};
-let chrono = {reste:0, id:null, fin:null};
+let D = {seances:[],cardio:[],poids:[],reglages:{age:23,fcmax:200}};
+let chrono = {reste:0, id:null};
 let onglet="seance", type=null, cardioKind="course", exoChoisi=null, ouvert=null;
 let series = {};  // nombre de séries affichées par exercice
-
-/* ---------- Brouillon de séance en cours ----------
-   Sauvegardé à chaque frappe : si la page est rechargée, mise en veille
-   ou si le téléphone redémarre, rien n'est perdu.
-   Le brouillon expire automatiquement le lendemain.               */
-function sauveBrouillon(){
-  const b = {type, date:auj(), champs:{}, note:"", series};
-  document.querySelectorAll("input[data-e]").forEach(i=>{
-    if(i.value!=="") b.champs[i.dataset.e+"|"+i.dataset.s+"|"+i.dataset.c]=i.value;
-  });
-  const n=document.getElementById("note");
-  if(n) b.note=n.value;
-  try{ localStorage.setItem(CLE_BROUILLON, JSON.stringify(b)); }catch(e){}
-}
-
-function litBrouillon(){
-  try{
-    const v=localStorage.getItem(CLE_BROUILLON);
-    if(!v) return null;
-    const b=JSON.parse(v);
-    if(!b||b.date!==auj()) return null;
-    if(!b.champs||!Object.keys(b.champs).length) return null;
-    return b;
-  }catch(e){ return null; }
-}
-
-function videBrouillon(){
-  try{ localStorage.removeItem(CLE_BROUILLON); }catch(e){}
-}
-
-function appliqueBrouillon(){
-  const b=litBrouillon();
-  if(!b||b.type!==type) return;
-  Object.keys(b.champs).forEach(k=>{
-    const [e,s,c]=k.split("|");
-    const el=document.querySelector('input[data-e="'+e+'"][data-s="'+s+'"][data-c="'+c+'"]');
-    if(el){ el.value=b.champs[k]; majMarque(el); }
-  });
-  const n=document.getElementById("note");
-  if(n&&b.note) n.value=b.note;
-}
 
 /* ---------- Rendu ---------- */
 function jourDuJour(){ return PLANNING[new Date().getDay()]; }
@@ -394,14 +346,14 @@ function render(){
   const j=jourDuJour();
   document.getElementById("jour").textContent=j.l;
   document.getElementById("titre").innerHTML =
-    (j.s?BLOCS[j.s].nom:"Pas de muscu") + (j.x?' <span class="tete-extra">· '+esc(j.x)+'</span>':'');
+    (j.s?BLOCS[j.s].nom+' <span class="tete-extra">· '+BLOCS[j.s].duree+'</span>':"Pas de muscu") + (j.x?' <span class="tete-extra">· '+esc(j.x)+'</span>':'');
 
   document.getElementById("nav").innerHTML =
     [["seance","Séance"],["progression","Progression"],["cardio","Cardio"],["poids","Poids"]]
     .map(([k,l])=>`<button class="nav-b ${onglet===k?'actif':''}" data-nav="${k}">${l}</button>`).join("");
 
   const v=document.getElementById("vue");
-  if(onglet==="seance"){ v.innerHTML=vueSeance(); appliqueBrouillon(); }
+  if(onglet==="seance") v.innerHTML=vueSeance();
   if(onglet==="progression") v.innerHTML=vueProgression();
   if(onglet==="cardio") v.innerHTML=vueCardio();
   if(onglet==="poids") v.innerHTML=vuePoids();
@@ -424,21 +376,14 @@ function cibleExo(nom){
 }
 
 function vueSeance(){
-  if(!type||!BLOCS[type]) type = jourDuJour().s || "Push focus épaule";
+  if(!type) type = jourDuJour().s || "push";
   const b=BLOCS[type], d=derniere(type);
-  const br=litBrouillon();
-
-  let h=`<div class="segments muscu">`+Object.keys(BLOCS).map(k=>
-    `<button class="seg ${type===k?'actif':''}" data-type="${esc(k)}" ${type===k?`style="background:${BLOCS[k].teinte}"`:''}>${esc(BLOCS[k].nom)}</button>`).join("")+`</div>`;
-
-  if(br&&br.type===type){
-    h+=`<div class="brouillon">Séance en cours restaurée automatiquement.
-      <button class="mini" id="jeter-brouillon">Repartir de zéro</button></div>`;
-  }
+  let h=`<div class="segments">`+Object.keys(BLOCS).map(k=>
+    `<button class="seg ${type===k?'actif':''}" data-type="${k}" ${type===k?`style="background:${BLOCS[k].teinte}"`:''}>${BLOCS[k].nom}</button>`).join("")+`</div>`;
 
   h+=`<p class="rappel">${d
-    ? `Dernière séance ${b.nom} : ${dateCourte(d.date)}. Les valeurs grisées sont celles de ce jour-là.`
-    : `Première séance ${b.nom} enregistrée ici. Les repères viennent de ton ancien carnet.`}</p>`;
+    ? `Durée estimée : ${b.duree}. Dernière séance ${b.nom} : ${dateCourte(d.date)}. Les valeurs grisées sont celles de ce jour-là.`
+    : `Durée estimée : ${b.duree}. Première séance ${b.nom} enregistrée ici. Les repères viennent de ton ancien carnet.`}</p>`;
 
   b.exos.forEach((exo,ei)=>{
     const cle=type+"|"+ei;
@@ -463,13 +408,13 @@ function vueSeance(){
     }
     h+=`</div>
       <div class="exo-actions">
-        <button class="mini" data-plus="${esc(cle)}">+ série</button>
-        ${nb>1?`<button class="mini" data-moins="${esc(cle)}">− série</button>`:''}
+        <button class="mini" data-plus="${cle}">+ série</button>
+        ${nb>1?`<button class="mini" data-moins="${cle}">− série</button>`:''}
       </div></section>`;
   });
 
   h+=`<textarea class="zone" id="note" rows="2" placeholder="Ressenti, main, épaule gauche, fatigue…"></textarea>
-    <button class="valider" id="valider">Enregistrer la séance ${esc(b.nom)}</button>`;
+    <button class="valider" id="valider">Enregistrer la séance ${b.nom}</button>`;
 
   const liste=D.seances.filter(s=>s.type===type).sort((a,b)=>a.date<b.date?1:-1).slice(0,8);
   if(liste.length){
@@ -482,7 +427,8 @@ function vueSeance(){
         h+=`<div class="hist-detail">`+s.exos.map(e=>
           `<div class="hist-exo"><span class="hist-exo-nom">${esc(e.n)}</span>
            <span class="hist-exo-sets">${e.sets.map(x=>x.w+"×"+x.r).join("  ")}</span></div>`).join("")
-          +(s.note?`<p class="hist-note">${esc(s.note)}</p>`:'')+`</div>`;
+          +(s.note?`<p class="hist-note">${esc(s.note)}</p>`:'')
+          +`<button class="mini danger" data-suppr="${s.id}">Supprimer cette séance</button></div>`;
       }
     });
     h+=`</section>`;
@@ -517,7 +463,6 @@ async function validerSeance(){
   if(!exos.length){ alert("Remplis au moins une série."); return; }
   D.seances.push({id:uid(),date:auj(),type,exos,note:(document.getElementById("note").value||"").trim()});
   await store.ecrire(D);
-  videBrouillon();
   series={}; render();
 }
 
@@ -573,13 +518,14 @@ function planDuJour(){
 function carteSeance(){
   const p=planDuJour();
   if(!p) return `<div class="plan"><div class="plan-titre">Pas de cardio prévu aujourd'hui</div>
-    <p class="plan-cle">Repos, ou foot. Tu peux quand même enregistrer une sortie ci-dessous.</p></div>`;
+    <p class="plan-cle">Repos. Tu peux quand même enregistrer une sortie ci-dessous.</p></div>`;
   const fc=zoneFC(p.fc);
   return `<div class="plan" style="border-left:3px solid ${p.kind==="course"?"#B4531C":"#0E6E78"}">
     <div class="plan-titre">${esc(p.titre)}</div>
     <table class="plan-t">${p.blocs.map(([a,b])=>
       `<tr><td class="plan-a">${esc(a)}</td><td>${esc(b)}</td></tr>`).join("")}</table>
     <div class="cibles">
+      ${p.duree?`<div class="cible"><span class="cible-l">Durée</span><span class="cible-v">${esc(p.duree)}</span></div>`:""}
       <div class="cible"><span class="cible-l">Distance</span><span class="cible-v">${esc(p.dist)}</span></div>
       <div class="cible"><span class="cible-l">Allure</span><span class="cible-v">${esc(p.allure)}</span></div>
       <div class="cible"><span class="cible-l">Fréquence cardiaque</span><span class="cible-v">${
@@ -618,7 +564,7 @@ function vueCardio(){
          cardioKind==="course"?allure(c.dist,c.secs)+"/km":allure(c.dist*10,c.secs)+"/100m"}${c.fc?" · "+c.fc+" bpm":""}</span></div>`).join("")
     +`</section>
     <p class="rappel" style="margin-top:16px">${D.reglages.age
-      ? `Zones calculées pour ${D.reglages.age} ans. `:""}<button class="mini" id="changer-age">${
+      ? `Zones calculées sur une FC max mesurée de ${fcmax()} bpm. `:""}<button class="mini" id="changer-age">${
       D.reglages.age?"Modifier mon âge":"Renseigner mon âge"}</button></p>`;
 }
 
@@ -694,46 +640,23 @@ function bip(){
 }
 function afficheChrono(){
   const b=document.getElementById("chrono"), t=document.getElementById("chrono-t");
-  const s=Math.max(0,chrono.reste);
   b.classList.remove("cache");
+  const s=Math.max(0,chrono.reste);
   t.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
   b.classList.toggle("fini",s===0);
 }
-
-/* Le décompte est recalculé depuis l'heure de fin, pas incrémenté :
-   il reste juste même après un refresh, une mise en veille ou un
-   redémarrage du téléphone. */
-function tickChrono(){
-  const avant=chrono.reste;
-  chrono.reste=Math.max(0,Math.round((chrono.fin-Date.now())/1000));
-  afficheChrono();
-  if(chrono.reste===0){
-    clearInterval(chrono.id); chrono.id=null;
-    if(avant>0) bip();
-  }
-}
-
-function lanceChrono(sec,fin){
+function lanceChrono(sec){
   clearInterval(chrono.id);
-  chrono.fin = fin || (Date.now()+sec*1000);
-  try{ localStorage.setItem(CLE_CHRONO, String(chrono.fin)); }catch(e){}
-  tickChrono();
-  if(chrono.reste>0) chrono.id=setInterval(tickChrono,250);
+  chrono.reste=sec; afficheChrono();
+  chrono.id=setInterval(()=>{
+    chrono.reste--;
+    if(chrono.reste<=0){ chrono.reste=0; clearInterval(chrono.id); chrono.id=null; bip(); }
+    afficheChrono();
+  },1000);
 }
-
 function stopChrono(){
-  clearInterval(chrono.id); chrono.id=null; chrono.fin=null;
-  try{ localStorage.removeItem(CLE_CHRONO); }catch(e){}
+  clearInterval(chrono.id); chrono.id=null;
   document.getElementById("chrono").classList.add("cache");
-}
-
-function reprendChrono(){
-  let fin=null;
-  try{ fin=parseInt(localStorage.getItem(CLE_CHRONO),10); }catch(e){}
-  if(!fin) return;
-  // au-delà de 10 min après la fin, on considère que la séance est passée à autre chose
-  if(Date.now()-fin > 600000){ stopChrono(); return; }
-  lanceChrono(null,fin);
 }
 
 /* ---------- Évènements ---------- */
@@ -766,7 +689,6 @@ document.addEventListener("click",async e=>{
     return;
   }
   if(t.id==="deconnexion"){ await sb.auth.signOut(); return; }
-  if(t.id==="jeter-brouillon"){ videBrouillon(); series={}; render(); return; }
   if(t.dataset.recup){ lanceChrono(+t.dataset.recup); return; }
   if(t.id==="chrono-x"){ stopChrono(); return; }
   if(t.id==="regler-age"||t.id==="changer-age"){
@@ -776,11 +698,18 @@ document.addEventListener("click",async e=>{
   }
   if(t.dataset.nav){ onglet=t.dataset.nav; render(); }
   else if(t.dataset.type){ type=t.dataset.type; series={}; render(); }
-  else if(t.dataset.plus){ series[t.dataset.plus]=(series[t.dataset.plus]||3)+1; sauveBrouillon(); render(); }
-  else if(t.dataset.moins){ series[t.dataset.moins]=Math.max(1,(series[t.dataset.moins]||3)-1); sauveBrouillon(); render(); }
+  else if(t.dataset.plus){ series[t.dataset.plus]=(series[t.dataset.plus]||3)+1; render(); }
+  else if(t.dataset.moins){ series[t.dataset.moins]=Math.max(1,(series[t.dataset.moins]||3)-1); render(); }
   else if(t.dataset.hist){ ouvert = ouvert===t.dataset.hist?null:t.dataset.hist; render(); }
   else if(t.dataset.exochoix){ exoChoisi=t.dataset.exochoix; render(); }
   else if(t.dataset.cardio){ cardioKind=t.dataset.cardio; render(); }
+  else if(t.dataset.suppr){
+    const s=D.seances.find(x=>x.id===t.dataset.suppr);
+    if(s && confirm(`Supprimer la séance ${BLOCS[s.type].nom} du ${dateCourte(s.date)} ? C'est définitif.`)){
+      D.seances=D.seances.filter(x=>x.id!==t.dataset.suppr);
+      ouvert=null; await store.ecrire(D); render();
+    }
+  }
   else if(t.id==="valider") validerSeance();
   else if(t.id==="ajout-cardio") ajoutCardio();
   else if(t.id==="ajout-poids") ajoutPoids();
@@ -792,8 +721,7 @@ document.addEventListener("click",async e=>{
 });
 
 document.addEventListener("input",e=>{
-  if(e.target.matches("input[data-e]")){ majMarque(e.target); sauveBrouillon(); }
-  else if(e.target.id==="note") sauveBrouillon();
+  if(e.target.matches("input[data-e]")) majMarque(e.target);
 });
 
 /* ---------- Démarrage ---------- */
@@ -810,30 +738,18 @@ async function chargePresc(){
 async function demarrer(){
   const o=await store.lire();
   await chargePresc();
-  D = (o&&o.seances) ? o : {seances:[],cardio:[],poids:[],reglages:{age:23}};
+  D = (o&&o.seances) ? o : {seances:[],cardio:[],poids:[],reglages:{age:23,fcmax:200}};
   if(!D.reglages) D.reglages={};
   if(!D.reglages.age) D.reglages.age=23;
+  if(!D.reglages.fcmax) D.reglages.fcmax=200;  // mesurée : 203 en 2022, 197 en 2023
   if(!D.cardio) D.cardio=[];
   if(!D.poids) D.poids=[];
-
-  const br=litBrouillon();
-  if(br){
-    if(BLOCS[br.type]) type=br.type;
-    if(br.series) series=br.series;
-  }
-
   render(); majSync();
 }
-
-/* Safari suspend les timers en arrière-plan : on resynchronise au retour. */
-document.addEventListener("visibilitychange",()=>{
-  if(!document.hidden && chrono.fin) tickChrono();
-});
 
 (async()=>{
   await initCloud();
   await demarrer();
-  reprendChrono();
 })();
 </script>
 </body>
