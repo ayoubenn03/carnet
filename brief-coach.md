@@ -31,9 +31,23 @@ mardi Jambes (quadriceps, ischios, machines), mercredi Push, jeudi course facile
 piscine ou repos, dimanche sortie longue. Plus de fractionné, plus de foot (le five est
 supprimé). Tennis 3×/semaine hors programme : l'alléger tant que le coude est irrité.
 Durées estimées : Pull 50-55 min, Jambes 55-60 min, Push 50 min, Fessiers 35-40 min, course facile + pente 35-40 min, sortie longue 55-65 min. Si le temps manque, réduire les séries plutôt que les exercices de coiffe et de moyen fessier.
+Planning de la semaine du 16 au 22/11 : lundi Pull + épaules légères, mardi Jambes sans flexion
+profonde + fessiers, mercredi Push léger, jeudi course facile sur plat, vendredi
+épaules légères (type `epa`), samedi trail seulement si avis médical OK, dimanche sortie
+facile sur plat.
 Après le trail du 21/11, rétablir un fractionné court et reconsidérer le planning.
 
 ## Situation au 1er novembre 2026 (priment sur le planning habituel)
+
+**Mise à jour du 15 novembre — genou (priorité sur tout le reste) :** douleur du
+genou en flexion profonde en charge (squat à vide, s'asseoir), absente en courant.
+Piste fémoro-patellaire ou tendon quadricipital, à faire examiner par un kiné ou un
+médecin du sport. Jusqu'à avis médical : **pas de hack squat, de presse profonde ni de
+fente**, leg extension en amplitude réduite seulement si indolore, **pas de pente ni de
+descente en course**, course facile sur le plat uniquement, volume non augmenté. Le
+trail du 21/11 est conditionnel à cet avis. Si la douleur persiste, recommander de ne
+pas le faire. Après le trail (ou son annulation), repartir de volume bas et ne pas
+reprendre de fractionné avant disparition de la douleur.
 
 **Objectif court terme : trail de 8 km le 21 novembre 2026.** Premier trail. Il vise
 de le finir bien, chrono estimé 62-70 min. Plus longue sortie récente : environ 5 km.
@@ -98,7 +112,7 @@ updated_at timestamptz
 }
 ```
 
-`type` vaut `push`, `pull`, `legs` ou `fess`. `kind` vaut `course` ou `piscine`.
+`type` vaut `push`, `pull`, `legs`, `fess` ou `epa`. `kind` vaut `course` ou `piscine`.
 `secs` est la durée totale en secondes, `dist` en kilomètres.
 
 ### `prescriptions` — ce qu'il doit faire
@@ -215,3 +229,8 @@ mouvements de poussée, quelles que soient les performances chiffrées.
 
 La clé `service_role` de Supabase est nécessaire pour écrire. Elle reste dans un
 fichier `.env` local, jamais dans le dépôt, jamais dans `index.html`.
+
+```
+SUPABASE_URL=https://tjajybrpsyqnyhfgcjzt.supabase.co
+SUPABASE_SERVICE_KEY=...
+```
