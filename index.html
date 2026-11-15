@@ -167,30 +167,39 @@ const PLANNING = {
   1:{l:"Lundi",s:"pull",x:null},
   2:{l:"Mardi",s:"legs",x:null},
   3:{l:"Mercredi",s:"push",x:null},
-  4:{l:"Jeudi",s:null,x:"Course facile + pente"},
-  5:{l:"Vendredi",s:"fess",x:null},
-  6:{l:"Samedi",s:null,x:"Piscine ou repos"},
-  0:{l:"Dimanche",s:null,x:"Sortie longue (prépa trail)"}
+  4:{l:"Jeudi",s:null,x:"Course facile (plat)"},
+  5:{l:"Vendredi",s:"epa",x:null},
+  6:{l:"Samedi",s:null,x:"Trail (si avis médical) ou repos"},
+  0:{l:"Dimanche",s:null,x:"Sortie facile (plat)"}
 };
 
 const BLOCS = {
-  push:{nom:"Push",duree:"50 min",teinte:"#B4531C",exos:[
+  push:{nom:"Push",duree:"40 min",teinte:"#B4531C",exos:[
     {n:"Rotation externe épaule (poulie basse)",tag:"coiffe",r:45,note:"Avant tout le reste. Très léger, 2 × 15-20."},
     {n:"Développé militaire machine",r:120,note:"Prise neutre uniquement (épaule gauche)."},
     {n:"Développé couché haltères",r:150,note:"Charge par haltère."},
     {n:"Élévations latérales",r:75},
     {n:"Élévation frontale poulie unilatérale",r:60},
     {n:"Pushdown corde unilatéral",r:60}]},
-  pull:{nom:"Pull",duree:"50-55 min",teinte:"#1B4E8C",exos:[
+  pull:{nom:"Pull",duree:"50 min",teinte:"#1B4E8C",exos:[
     {n:"Face pull",tag:"coiffe",r:45,note:"Activation + santé d'épaule. Léger, contrôlé."},
     {n:"Traction assistée",inverse:true,r:120,note:"Charge = assistance : plus c'est bas, plus c'est dur."},
     {n:"Tirage horizontal V-bar",r:120,note:"Avec sangles de tirage (irritation coude droit)."},
     {n:"Tirage vertical prise neutre",r:120,note:"Avec sangles, charge modérée tant que le coude tire."},
     {n:"Curl barre EZ",r:75,note:"Supination complète, 2 reps en réserve. Stop si ça pince au coude."},
-    {n:"Curl marteau",r:60,note:"EN PAUSE (long supinateur irrité). Reprendre quand le coude est indolore."}]},
-  legs:{nom:"Jambes",duree:"55-60 min",teinte:"#3E6B34",exos:[
-    {n:"Hack squat",r:180,note:"EN PAUSE (douleur haut du fessier droit). Reprise à ~60 % de la charge quand tu marches sans douleur 2-3 jours. Genoux dans l'axe des orteils, pousse-les vers l'extérieur."},{n:"Presse à cuisses",r:150,note:"Bassin plaqué, descente contrôlée, ne descends pas jusqu'à décoller le bas du dos."},{n:"Leg curl allongé",r:90},
-    {n:"Leg extension",r:90},{n:"Hip thrust",r:120,note:"Indolore uniquement. Stop si le fessier droit tire."},{n:"Mollets debout",r:60}]},
+    {n:"Curl marteau",r:60,note:"EN PAUSE (long supinateur irrité). Reprendre quand le coude est indolore."},
+    {n:"Élévations latérales",r:75,note:"Léger, 3 × 14-18, jusqu'à la hauteur des épaules."},
+    {n:"Oiseau (deltoïde arrière)",r:60,note:"Léger, 3 × 15. Épaule gauche : amplitude confortable."}]},
+  legs:{nom:"Jambes",duree:"40-45 min",teinte:"#3E6B34",exos:[
+    {n:"Hack squat",r:180,note:"EN PAUSE : douleur du genou en flexion profonde (s'asseoir, squat). Ne reprends pas avant l'avis du kiné ou du médecin du sport."},{n:"Presse à cuisses",r:150,note:"EN PAUSE tant que le genou fait mal en flexion. Reprise en amplitude réduite (genou à ~60-90°) seulement si indolore."},{n:"Leg curl allongé",r:90},
+    {n:"Leg extension",r:90,note:"Amplitude réduite, charge légère, seulement si indolore."},{n:"Hip thrust",r:120,note:"Indolore uniquement. Stop si le fessier droit tire."},{n:"Mollets debout",r:60},
+    {n:"Abduction machine (moyen fessier)",r:60,note:"Léger, lent et contrôlé, 3 × 12-15."},
+    {n:"Coquille (clamshell) élastique",r:45,note:"Sans élastique si tu n'en as pas : descente en 3 s, pause 2 s. 3 × 15 par côté."}]},
+  epa:{nom:"Épaules",duree:"20-25 min",teinte:"#8A6A1F",exos:[
+    {n:"Rotation externe épaule (poulie basse)",tag:"coiffe",r:45,note:"Très léger, 2 × 15-20."},
+    {n:"Élévations latérales",r:75,note:"3 × 12-15, léger, jusqu'à la hauteur des épaules."},
+    {n:"Élévation frontale poulie unilatérale",r:60,note:"2 × 15, léger."},
+    {n:"Face pull",tag:"coiffe",r:45,note:"2 × 15-20, léger, contrôlé."}]},
   fess:{nom:"Fessiers",duree:"35-40 min",teinte:"#7A4E8C",exos:[
     {n:"Abduction machine (moyen fessier)",r:60,note:"Léger, lent et contrôlé. 3 × 12-15. Tu dois sentir le côté du fessier."},
     {n:"Pas latéraux élastique",r:45,note:"Élastique au-dessus des genoux, genoux fléchis, genoux poussés vers l'extérieur. 3 × 12-15 pas par côté."},
@@ -202,32 +211,32 @@ const BLOCS = {
 
 /* Séance cardio prescrite selon le jour */
 const PLAN_CARDIO = {
-  4:{kind:"course",titre:"Course facile + pente",
+  4:{kind:"course",titre:"Course facile (plat)",
      blocs:[["Échauffement","5 min de marche rapide, tapis à 1 %"],
-            ["Corps de séance","25 min de footing facile, respiration nasale. 3 blocs de 3 min à 4-6 % de pente (marche rapide ou trot) vers la 8e, 14e et 20e minute"],
+            ["Corps de séance","20 à 25 min de footing facile, respiration nasale, sur du plat"],
             ["Retour au calme","3 min de marche"]],
-     duree:"35-40 min",
-     dist:"3,5 à 4,5 km",
-     allure:"8'00 à 8'30/km",
+     duree:"30-35 min",
+     dist:"2,5 à 3,5 km",
+     allure:"8'30 à 9'00/km",
      fc:[.65,.75],
-     cle:"Prépare les quadriceps à la descente du trail. Si le fessier ou le genou tirent, supprime la pente et reste à plat."},
-  6:{kind:"piscine",titre:"Piscine — récup active",
-     blocs:[["Échauffement","200 m souple, nage au choix"],
-            ["Série","10 × 50 m avec 30 s de repos"],
-            ["Fin","200 m très souple, dont du dos pour ouvrir les épaules"]],
-     duree:"40-45 min",
-     dist:"800 à 1 000 m",
-     allure:"Aucune notion de chrono",
-     cle:"Récupération : les épaules travaillent en amplitude, pas en force. Ou repos complet si tu es fatigué."},
-  0:{kind:"course",titre:"Sortie longue — prépa trail du 21/11",
-     blocs:[["Objectif","8/11 : 6,5 à 7 km. 15/11 : 5 km facile, début de l'allègement"],
-            ["Intensité","Respiration nasale du début à la fin. Si tu ouvres la bouche, ralentis"],
-            ["Stratégie","Pars lentement. Marche les côtes raides, comme le jour du trail"]],
-     duree:"55-65 min (8/11), 45-50 min (15/11)",
-     dist:"6,5 à 7 km (8/11), 5 km (15/11)",
-     allure:"8'00 à 8'20/km",
+     cle:"Pas de pente ni de descente tant que le genou fait mal en flexion. Si la douleur apparaît, passe en marche et arrête."},
+  6:{kind:"course",titre:"Trail 8 km — seulement si avis médical OK",
+     blocs:[["Condition","Kiné ou médecin du sport consulté, genou indolore en flexion et en descente"],
+            ["Stratégie","Pars très lentement, respiration nasale sur les 2 premiers km, marche les côtes raides"],
+            ["Descentes","Pas à pas, prudent, tu ne cherches pas à gagner du temps"]],
+     duree:"70-80 min",
+     dist:"8 km",
+     allure:"Libre, jamais au-delà de la respiration nasale",
+     cle:"Si le genou fait mal, tu marches ou tu t'arrêtes. Une pause d'une ou deux semaines coûte moins cher qu'une blessure."},
+  0:{kind:"course",titre:"Sortie facile (plat)",
+     blocs:[["Objectif","25 à 30 min en continu, sur du plat, seulement si le genou est indolore en courant"],
+            ["Intensité","Respiration nasale du début à la fin"],
+            ["Si ça fait mal","Passe en marche, puis vélo ou piscine"]],
+     duree:"30-35 min",
+     dist:"3 à 4 km",
+     allure:"8'30 à 9'00/km",
      fc:[.65,.75],
-     cle:"C'est ta séance la plus importante avant le trail. Termine en pouvant encore parler."}
+     cle:"Le volume attend l'avis médical sur le genou. Ne monte pas la distance tant que la douleur en flexion est là."}
 };
 
 const REPERES = {
