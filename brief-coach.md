@@ -5,7 +5,7 @@ progression, et le travail à faire chaque semaine.
 
 ## Contexte athlète
 
-- 23 ans, 125 kg, objectif 100 kg.
+- 23 ans. **120 kg au 24/11/2026** (125 au départ), objectif 100 kg.
 - Sportif depuis l'enfance, musculation niveau intermédiaire solide, surtout en poussée.
 - Reprise de la muscu il y a 2 mois après une pause. Course à pied depuis 1 mois.
 - Objectif course : 5 km confortable, puis chercher le chrono, puis 10 km.
@@ -36,6 +36,19 @@ profonde + fessiers, mercredi Push léger, jeudi course facile sur plat, vendred
 épaules légères (type `epa`), samedi trail seulement si avis médical OK, dimanche sortie
 facile sur plat.
 Après le trail du 21/11, rétablir un fractionné court et reconsidérer le planning.
+
+**Mise à jour du 24/11 — le trail a eu lieu.** 7,70 km en 59 min à 7'41/km,
+FC moyenne 157, max 185, **149 m de dénivelé**, plus une sortie de 1,77 km et
+44 m le même jour : environ 193 m de D+ dans la journée. Rien dans les données
+n'indique qu'un avis médical ait été obtenu avant — à vérifier avec lui, car la
+consigne du 15/11 interdisait pente et descente jusque-là.
+Suites : courbatures sévères des quadriceps et des avant-bras, séance Jambes du
+23/11 et séance Pull annulées. Aucune muscu depuis le 13/11.
+À noter pour le contexte : toutes ses autres courses sont des `VirtualRun`,
+c'est-à-dire du tapis, donc du dénivelé nul. Le trail était sa première
+exposition au travail excentrique de descente, à 120 kg. Tant que le genou n'a
+pas été examiné, ne pas programmer de descente ni de pente, quelle que soit la
+qualité de la récupération affichée par le score de forme.
 
 ## Situation au 1er novembre 2026 (priment sur le planning habituel)
 
@@ -87,7 +100,51 @@ séances courtes (25-45 min) avec des charges légères quand il manque de temps
 
 ## Base de données
 
-Projet Supabase. Deux tables.
+Projet Supabase. Quatre tables et quatre vues.
+
+### Données de la montre (depuis le 24/11/2026)
+
+Une HUAWEI Watch GT 7 Pro alimente la base sans intervention :
+`Huawei Health → Intervals.icu (connexion native) → Edge Function
+sync-montre → tables jours et activites`, trois fois par jour.
+
+- `jours` — une ligne par jour : `poids_kg`, `masse_grasse`, `pas`, `fc_repos`,
+  `fc_sommeil`, `hrv_ms`, `sommeil_min`, `sommeil_score`, `spo2`, `vo2max`,
+  `ctl` (fitness), `atl` (fatigue), `forme` (ctl − atl), plus deux champs
+  saisis à la main dans l'app : `courbatures` (0 aucune … 3 sévères) et
+  `ressenti_jour`.
+- `activites` — une ligne par séance de la montre : `debut`, `type`
+  (course, piscine, velo, marche, muscu, tennis, foot, boxe…), `duree_s`,
+  `distance_m`, `denivele_m`, `fc_moy`, `fc_max`, `kcal`, `cadence_moy`,
+  `charge`, `intensite`, `ressenti`.
+
+Limites connues, à ne pas prendre pour des mesures fiables :
+- La **durée de sommeil** venue de Huawei est imprécise (problème documenté
+  côté Intervals.icu). À lire en tendance, jamais au quart d'heure près.
+- La **VFC** n'est pas transmise par Huawei : `hrv_ms` reste vide.
+- Le **poids** n'est presque jamais rempli, faute de balance connectée.
+  La source de vérité pour le poids reste `carnet.data.poids`.
+- `ctl` et `atl` sont bas (environ 5 et 9) parce qu'Intervals.icu n'a que
+  quelques semaines d'historique. Lire leur écart, pas leur valeur absolue.
+
+### Les quatre vues
+
+Toutes en `security_invoker` et exposant `user_id` : avec un jeton
+utilisateur la RLS ne laisse passer que ses lignes, avec la clé
+`service_role` elles renvoient tous les comptes et il faut filtrer.
+
+- `v_coach_resume` — une ligne, l'état du moment. **Commencer par là.**
+- `v_score_forme` — score de forme sur 100 et sa cause dominante. Construit
+  en retirant des points pour la FC de repos au-dessus de sa référence
+  28 jours (40 max), le manque de sommeil (35), la fatigue accumulée (25)
+  et les courbatures déclarées (35). Les courbatures sont saisies à la main
+  parce qu'aucun capteur ne voit les dégâts musculaires excentriques :
+  sans elles le score annonçait « frais » au lendemain du trail.
+- `v_coach` — une ligne par jour sur 90 jours, muscu et activités alignées.
+- `v_muscu` — le JSON du carnet déplié en lignes (date, bloc, volume_kg,
+  nb_series, note).
+
+### Les deux tables d'origine
 
 ### `carnet` — ce qu'il a fait
 

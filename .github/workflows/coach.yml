@@ -38,9 +38,19 @@ jobs:
             SUPABASE_URL et SUPABASE_SERVICE_KEY. SUPABASE_URL est l'hôte nu :
             construis tes appels REST en `"${SUPABASE_URL%/}/rest/v1/<table>"`.
 
-            1. Lis la table `carnet` et récupère l'historique des 4 dernières
-               semaines : séances de muscu, sorties cardio, poids, et surtout
-               les notes de séance.
+            1. Lis les données, dans cet ordre :
+               - `v_coach_resume` : une seule ligne, l'état du moment (poids,
+                 FC de repos 7 j contre 28 j, sommeil, fitness/fatigue/forme,
+                 volume de muscu, kilomètres de course, dates des dernières
+                 séances). Commence toujours par là.
+               - `v_score_forme` : le score de forme du jour et ses causes,
+                 courbatures déclarées comprises.
+               - `v_coach` : une ligne par jour sur 90 jours, muscu et
+                 activités de la montre alignées sur la même date.
+               - `carnet` pour les **notes de séance**, qui ne sont dans aucune
+                 vue et qui priment sur les chiffres.
+               Chaque vue expose `user_id` : avec la clé service_role tu vois
+               tous les comptes, donc filtre sur l'athlète du brief.
             2. Applique les règles de progression du brief.
             3. Écris une ligne dans la table `prescriptions` pour chaque jour
                d'entraînement de la semaine à venir, au format décrit dans le
