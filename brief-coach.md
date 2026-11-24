@@ -39,9 +39,13 @@ Après le trail du 21/11, rétablir un fractionné court et reconsidérer le pla
 
 **Mise à jour du 24/11 — le trail a eu lieu.** 7,70 km en 59 min à 7'41/km,
 FC moyenne 157, max 185, **149 m de dénivelé**, plus une sortie de 1,77 km et
-44 m le même jour : environ 193 m de D+ dans la journée. Rien dans les données
-n'indique qu'un avis médical ait été obtenu avant — à vérifier avec lui, car la
-consigne du 15/11 interdisait pente et descente jusque-là.
+44 m le même jour : environ 193 m de D+ dans la journée. **Aucun avis médical n'a été obtenu avant**, alors que la
+consigne du 15/11 interdisait pente et descente jusque-là. Il déclare le 24/11
+que le genou « va plutôt bien » depuis. À nuancer : la douleur d'origine
+apparaissait en **flexion profonde en charge**, et il n'a fait aucune séance de
+jambes depuis le 13/11. Le mouvement douloureux n'a donc pas été retesté ; le
+trail ne vaut pas feu vert. Tant qu'une séance de jambes complète n'est pas
+passée sans douleur, considérer la contrainte du 15/11 comme toujours active.
 Suites : courbatures sévères des quadriceps et des avant-bras, séance Jambes du
 23/11 et séance Pull annulées. Aucune muscu depuis le 13/11.
 À noter pour le contexte : toutes ses autres courses sont des `VirtualRun`,
