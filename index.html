@@ -85,6 +85,26 @@ svg{display:block;width:100%;height:auto;overflow:visible;}
 .form{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .lab{display:flex;flex-direction:column;gap:4px;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gris);}
 
+/* --- Score de forme du matin --- */
+#forme-du-jour{max-width:640px;margin:14px auto 0;padding:0 14px;}
+#forme-du-jour:empty{display:none;}
+.forme{border-radius:2px;padding:14px 16px;}
+.forme.frais{background:#2F5A33;color:#EDEFF2;}
+.forme.correct{background:var(--encre);color:var(--papier);}
+.forme.reserve{background:#8C5A12;color:#FFF8E8;}
+.forme.recup{background:#8C2A1C;color:#FFF0EC;}
+.forme-tete{display:flex;align-items:baseline;gap:10px;}
+.forme-note{font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:700;line-height:.9;}
+.forme-niveau{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.forme-date{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10.5px;opacity:.6;}
+.forme-txt{margin:8px 0 0;font-size:12.5px;line-height:1.5;opacity:.9;}
+.forme-detail{margin:6px 0 0;font-family:'JetBrains Mono',monospace;font-size:10.5px;opacity:.55;}
+.forme-lab{margin:12px 0 5px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;opacity:.6;}
+.forme-choix{display:flex;gap:5px;}
+.forme-choix button{flex:1;padding:7px 2px;border-radius:2px;font-size:11.5px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.3);background:transparent;color:inherit;opacity:.75;}
+.forme-choix button.on{background:#EDEFF2;color:#14171C;border-color:transparent;opacity:1;font-weight:600;}
+
 .jauge-bloc{background:var(--encre);color:var(--papier);border-radius:2px;padding:16px;margin-bottom:16px;}
 .jauge-chiffres{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
 .jauge-actuel{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:700;line-height:.9;}
@@ -149,6 +169,8 @@ button{cursor:pointer;font-family:inherit;}
   <div class="tete-haut"><div class="tete-jour" id="jour"></div><span class="sync" id="sync"></span></div>
   <div class="tete-titre" id="titre"></div>
 </header>
+
+<div id="forme-du-jour"></div>
 
 <main id="vue"></main>
 
@@ -733,6 +755,65 @@ document.addEventListener("input",e=>{
   if(e.target.matches("input[data-e]")) majMarque(e.target);
 });
 
+/* ---------- Score de forme du matin ----------
+   Calculé par la vue `v_score_forme` en base, pas ici : le chiffre
+   que tu vois le matin est exactement celui que lit le coach.
+   Il retire des points pour la FC de repos au-dessus de ta référence
+   sur 28 jours, le manque de sommeil, la fatigue accumulée, et les
+   courbatures que tu déclares — les seules que les capteurs ne
+   voient pas.                                                     */
+const FORME_CLASSE = {
+  "Frais":"frais", "Correct":"correct", "Réserve":"reserve", "Récupération":"recup"
+};
+const FORME_LIBELLES = ["aucune","légères","marquées","sévères"];
+
+async function majForme(){
+  const b=document.getElementById("forme-du-jour");
+  if(!b) return;
+  if(!sb||!session){ b.innerHTML=""; return; }
+
+  let d=null;
+  try{
+    const {data}=await sb.from("v_score_forme").select("*").maybeSingle();
+    d=data;
+  }catch(e){ /* hors ligne : mieux vaut rien qu'un message d'erreur */ }
+  if(!d){ b.innerHTML=""; return; }
+
+  const hhmm=m=>Math.floor(m/60)+"h"+String(m%60).padStart(2,"0");
+  const ecart=d.ecart_fcr>0 ? "+"+d.ecart_fcr : d.ecart_fcr;
+  const detail=[
+    d.fc_repos!=null    ? `FC repos ${d.fc_repos} (${ecart} vs réf.)` : null,
+    d.sommeil_min!=null ? `sommeil ${hhmm(d.sommeil_min)}`            : null,
+    d.forme!=null       ? `charge ${d.forme>0?"+":""}${d.forme}`      : null
+  ].filter(Boolean).join(" · ");
+
+  b.innerHTML=`<div class="forme ${FORME_CLASSE[d.niveau]||"correct"}">
+    <div class="forme-tete">
+      <span class="forme-note">${d.score}</span>
+      <span class="forme-niveau">${esc(d.niveau)}</span>
+      <span class="forme-date">${esc(d.date)}</span>
+    </div>
+    <p class="forme-txt">${esc(d.cause)} ${esc(d.conseil)}</p>
+    <p class="forme-detail">${esc(detail)}</p>
+    <p class="forme-lab">Courbatures ce matin${d.courbatures_absentes?" — à renseigner":""}</p>
+    <div class="forme-choix">${FORME_LIBELLES.map((lib,i)=>
+      `<button data-courb="${i}" class="${(!d.courbatures_absentes&&d.courbatures===i)?"on":""}">${lib}</button>`
+    ).join("")}</div>
+  </div>`;
+
+  b.querySelectorAll("[data-courb]").forEach(btn=>{
+    btn.onclick=async()=>{
+      try{
+        const {error}=await sb.from("jours").upsert(
+          {user_id:session.user.id, date:auj(), courbatures:+btn.dataset.courb},
+          {onConflict:"user_id,date"});
+        if(error) throw error;
+        await majForme();
+      }catch(e){ alert("Enregistrement impossible pour l'instant."); }
+    };
+  });
+}
+
 /* ---------- Démarrage ---------- */
 async function chargePresc(){
   PRESC=null;
@@ -753,8 +834,12 @@ async function demarrer(){
   if(!D.reglages.fcmax) D.reglages.fcmax=200;  // mesurée : 203 en 2022, 197 en 2023
   if(!D.cardio) D.cardio=[];
   if(!D.poids) D.poids=[];
-  render(); majSync();
+  render(); majSync(); majForme();
 }
+
+// Le score change dans la journée (synchro montre à 7h23, 14h23, 22h23),
+// donc on le rafraîchit au retour sur l'app plutôt qu'au seul démarrage.
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) majForme(); });
 
 (async()=>{
   await initCloud();
